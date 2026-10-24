@@ -98,7 +98,7 @@ main{flex:1;display:flex;min-height:0}
 <script src="common.js"></script>
 <script>
 'use strict';
-var VERSION='3.0';
+var VERSION='3.1';
 var DEFAULT_SETTINGS={h1:'LA PLACE CAFE',h2:'Votre moment, notre place',h3:'El Baten, Kairouan',footer:'Merci et a bientot !',drawerPin:2,printMode:'webusb',adminPin:'',kickOnSale:true};
 var ADMIN_TTL=120000;
 var S={menu:null,menuTs:0,settings:null,cart:[],cat:null,service:null,adminUntil:0,auth:null};
@@ -354,7 +354,10 @@ var Sync={busy:false,last:0,pending:0,err:null,t:null,
   schedule:function(ms){var self=this;clearTimeout(this.t);this.t=setTimeout(function(){self.run()},ms||1500)},
   count:function(){return Promise.all([DB.all('services'),DB.all('sales')]).then(function(r){
     return {svcs:r[0].filter(function(x){return !x.synced}),sales:r[1].filter(function(x){return !x.synced})}})},
-  run:function(){var self=this;if(!Cloud.configured()||!S.auth||this.busy)return this.refreshCount();
+  /* jumelage automatique : si la config contient un compte caisse, la tablette s'y connecte seule une fois */
+  pair:function(){var self=this,pc=window.LP_CONFIG&&LP_CONFIG.pair;if(!pc||S.auth||this.pairing||!Cloud.configured())return false;
+    this.pairing=true;Cloud.login(pc.email,pc.password).then(function(a){self.setAuth(a);self.pairing=false;toast('Caisse connectée au serveur en ligne',3000);self.run()},function(){self.pairing=false});return true},
+  run:function(){var self=this;if(!S.auth&&this.pair())return;if(!Cloud.configured()||!S.auth||this.busy)return this.refreshCount();
     this.busy=true;this.ui();var tok;
     return Cloud.token(S.auth,function(a){self.setAuth(a)}).then(function(t){tok=t;return self.count()}).then(function(p){
       var svcs=p.svcs,sales=p.sales,chain=Promise.resolve();
@@ -404,6 +407,9 @@ $('bClear').onclick=clearCart;$('bPay').onclick=pay;$('bHist').onclick=showHisto
 $('pchip').onclick=function(){if(!Printer.ready())requireAdmin(settings)};$('cchip').onclick=function(){requireAdmin(syncAdmin)};
 setInterval(function(){renderTop();renderProds()},30000);
 setInterval(function(){Sync.run()},60000);
+/* mise à jour automatique : nouvelle version publiée + caisse au repos -> rechargement */
+setInterval(function(){if(!navigator.onLine)return;fetch('index.html?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){
+  var m=t.match(/var VERSION='([^']+)'/);if(m&&m[1]!==VERSION&&!S.cart.length&&!document.querySelector('.ov'))location.reload()}).catch(function(){})},600000);
 window.addEventListener('online',function(){Sync.schedule(500)});
 document.addEventListener('contextmenu',function(e){e.preventDefault()});
 

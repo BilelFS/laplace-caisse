@@ -1,4 +1,4 @@
-var CACHE = 'laplace-pos-v3';
+var CACHE = 'laplace-pos-v3-1';
 var FILES = ['./', './index.html', './common.js', './common.css', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
