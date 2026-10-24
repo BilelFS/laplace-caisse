@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
@@ -62,6 +62,40 @@ main{flex:1;display:flex;min-height:0}
 @media (max-width:1100px){#cats{width:140px}.cat .ar{display:none}#cart{width:310px}.clock{display:none}#prods{grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}}
 @media (max-width:900px){.brand{display:none}header .hbtn{padding:10px 9px;font-size:15px}}
 @media (max-height:600px){#prods{grid-auto-rows:128px}.prod .ic{font-size:34px}.totrow .v{font-size:36px}.acts .btn{min-height:54px}.cat{min-height:56px;padding:8px}}
+/* ---- téléphone (portrait) ---- */
+@media (max-width:700px){
+  header{height:auto;flex-wrap:wrap;padding:6px 4px 4px;padding-top:calc(6px + env(safe-area-inset-top))}
+  header>*{margin:2px 3px}
+  .brand,.clock{display:none}
+  .svc{font-size:15px;padding:7px 10px}
+  .pchip{font-size:13px;padding:6px 8px}
+  header .hbtn{-webkit-box-flex:1;flex:1 1 20%;min-width:0;padding:9px 2px;font-size:14px;min-height:42px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  main{flex-direction:column}
+  #cats{width:auto;display:flex;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--line);flex-shrink:0;-webkit-overflow-scrolling:touch}
+  .cat{width:auto;flex-shrink:0;min-height:0;padding:8px 12px;border-left:0;border-bottom:5px solid transparent;border-right:1px solid var(--line)}
+  .cat .ic{font-size:24px;width:auto}
+  .cat .fr{font-size:15px;white-space:nowrap}
+  .cat .ar{display:none}
+  #prods{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));grid-auto-rows:122px;grid-gap:8px;padding:8px}
+  .prod{border-radius:12px;padding:4px}
+  .prod .ic{font-size:32px}
+  .prod .nm{font-size:15px;margin-top:4px}
+  .prod .ar{font-size:13px}
+  .prod .pr{font-size:17px}
+  .prod .cnt{font-size:15px;min-width:26px;height:26px;line-height:26px;top:4px;right:4px;padding:0 5px}
+  #cart{width:auto;border-left:0;border-top:2px solid var(--gold);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+  #lines{flex:none;max-height:24vh;padding:0 8px}
+  #lines .empty{margin:8px 0;font-size:15px}
+  .ln{padding:5px 0}
+  .ln .n{font-size:15px}
+  .q button{width:38px;height:38px;font-size:20px}
+  .ln .t{width:58px;font-size:15px}
+  #tot{padding:6px 10px 8px}
+  .totrow .v{font-size:32px}
+  .acts{margin-top:6px}
+  .acts .btn{min-height:52px;font-size:18px}
+  #toast{bottom:auto;top:40%;font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -98,7 +132,7 @@ main{flex:1;display:flex;min-height:0}
 <script src="common.js"></script>
 <script>
 'use strict';
-var VERSION='3.1';
+var VERSION='3.2';
 var DEFAULT_SETTINGS={h1:'LA PLACE CAFE',h2:'Votre moment, notre place',h3:'El Baten, Kairouan',footer:'Merci et a bientot !',drawerPin:2,printMode:'webusb',adminPin:'',kickOnSale:true};
 var ADMIN_TTL=120000;
 var S={menu:null,menuTs:0,settings:null,cart:[],cat:null,service:null,adminUntil:0,auth:null};
