@@ -1,4 +1,4 @@
-var CACHE = 'laplace-pos-v1';
+var CACHE = 'laplace-pos-v2';
 var FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
@@ -11,14 +11,24 @@ self.addEventListener('activate', function (e) {
   }).then(function () { return self.clients.claim(); }));
 });
 
-// Cache d'abord (marche hors ligne), puis mise à jour en arrière-plan quand internet est là
+function save(req, res) {
+  if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
+  return res;
+}
+
 self.addEventListener('fetch', function (e) {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(caches.match(e.request).then(function (hit) {
-    var net = fetch(e.request).then(function (res) {
-      if (res && res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(e.request, copy); }); }
-      return res;
-    }).catch(function () { return hit; });
+  var req = e.request;
+  if (req.method !== 'GET') return;
+  // Page : réseau d'abord (mises à jour immédiates), cache si hors ligne
+  if (req.mode === 'navigate') {
+    e.respondWith(fetch(req).then(function (res) { return save(req, res); }).catch(function () {
+      return caches.match(req).then(function (hit) { return hit || caches.match('./index.html'); });
+    }));
+    return;
+  }
+  // Autres fichiers : cache d'abord, mise à jour en arrière-plan
+  e.respondWith(caches.match(req).then(function (hit) {
+    var net = fetch(req).then(function (res) { return save(req, res); }).catch(function () { return hit; });
     return hit || net;
   }));
 });
