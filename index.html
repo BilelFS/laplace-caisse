@@ -143,7 +143,7 @@ main{flex:1;display:flex;min-height:0}
 <script src="common.js"></script>
 <script>
 'use strict';
-var VERSION='4.0';
+var VERSION='4.1';
 var DEFAULT_SETTINGS={h1:'LA PLACE CAFE',h2:'Votre moment, notre place',h3:'El Baten, Kairouan',footer:'Merci et a bientot !',drawerPin:2,printMode:'webusb',adminPin:'',kickOnSale:true};
 var ADMIN_TTL=120000;
 var S={menu:null,menuTs:0,settings:null,cart:[],cat:null,service:null,adminUntil:0,auth:null,stock:[],stockTs:0,wipeSeen:0,movesPulled:0};
@@ -517,6 +517,15 @@ setInterval(function(){Sync.run()},60000);
 setInterval(function(){if(!navigator.onLine)return;fetch('index.html?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(tx){
   var m=tx.match(/var VERSION='([^']+)'/);if(m&&m[1]!==VERSION&&!S.cart.length&&!document.querySelector('.ov'))location.reload()}).catch(function(){})},600000);
 window.addEventListener('online',function(){Sync.schedule(500)});
+/* tablette : plein écran au premier toucher si ouverte dans un onglet, et écran toujours allumé */
+function isInstalled(){return window.matchMedia&&(matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches)}
+function goFull(){var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;
+  if(isInstalled()||document.fullscreenElement||document.webkitFullscreenElement||!f||Math.max(screen.width,screen.height)<900)return;
+  try{var r=f.call(d);if(r&&r.catch)r.catch(function(){})}catch(e){}}
+document.addEventListener('click',goFull,true);
+var wake=null;function keepAwake(){if(!navigator.wakeLock||document.visibilityState!=='visible'||wake)return;
+  navigator.wakeLock.request('screen').then(function(w){wake=w;w.addEventListener('release',function(){wake=null})}).catch(function(){})}
+document.addEventListener('visibilitychange',keepAwake);document.addEventListener('click',keepAwake,true);keepAwake();
 document.addEventListener('contextmenu',function(e){e.preventDefault()});
 
 /* ---------- démarrage ---------- */
