@@ -55,3 +55,23 @@ create policy staff_all on public.sales    for all to authenticated using ((sele
 create policy staff_all on public.config   for all to authenticated using ((select public.is_staff())) with check ((select public.is_staff()));
 -- Ajouter un compte : Authentication > Add user, puis
 -- insert into public.staff(user_id, role) select id, 'caisse' from auth.users where email = '...';
+
+-- V4 : dépenses (achats du jour, avances, charges) et mouvements de stock
+create table if not exists public.expenses (
+  id text primary key, ts bigint not null, type text not null, label text, amount integer not null,
+  from_drawer boolean not null default false, service_id text, service_type text, person text,
+  stock_id text, qty numeric, cancelled boolean not null default false, cancelled_at bigint,
+  source text not null default 'caisse', updated_at timestamptz not null default now());
+create table if not exists public.stock_moves (
+  id text primary key, ts bigint not null, item_id text not null, kind text not null, qty numeric not null,
+  expense_id text, note text, cancelled boolean not null default false, source text not null default 'caisse',
+  updated_at timestamptz not null default now());
+create index if not exists expenses_ts_idx on public.expenses (ts);
+create index if not exists expenses_service_idx on public.expenses (service_id);
+create index if not exists stock_moves_ts_idx on public.stock_moves (ts);
+create index if not exists stock_moves_source_ts_idx on public.stock_moves (source, ts);
+alter table public.expenses enable row level security;
+alter table public.stock_moves enable row level security;
+create policy staff_all on public.expenses for all to authenticated using ((select public.is_staff())) with check ((select public.is_staff()));
+create policy staff_all on public.stock_moves for all to authenticated using ((select public.is_staff())) with check ((select public.is_staff()));
+-- config : clés 'menu', 'stock' (liste des produits du stock) et 'wipe' (dernier « Vider les données »)
