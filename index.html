@@ -115,6 +115,7 @@ main{flex:1;display:flex;min-height:0}
     <div class="spacer"></div>
     <div class="pchip off" id="pchip">🖨️ ✕</div>
     <div class="pchip off" id="cchip" style="display:none">☁️</div>
+    <button class="hbtn lang" id="bFull" aria-label="Plein écran" style="display:none">⛶</button>
     <button class="hbtn lang" id="bLang" data-lang></button>
     <button class="hbtn" id="bHist"></button>
     <button class="hbtn" id="bExp"></button>
@@ -143,7 +144,7 @@ main{flex:1;display:flex;min-height:0}
 <script src="common.js"></script>
 <script>
 'use strict';
-var VERSION='4.2';
+var VERSION='4.3';
 var DEFAULT_SETTINGS={h1:'LA PLACE CAFE',h2:'Votre moment, notre place',h3:'El Baten, Kairouan',footer:'Merci et a bientot !',drawerPin:2,printMode:'webusb',adminPin:'',kickOnSale:true};
 var ADMIN_TTL=120000;
 var S={menu:null,menuTs:0,settings:null,cart:[],cat:null,service:null,adminUntil:0,auth:null,stock:[],stockTs:0,wipeSeen:0,movesPulled:0};
@@ -525,6 +526,9 @@ function goFull(){var d=document.documentElement,f=d.requestFullscreen||d.webkit
   if(document.fullscreenElement||document.webkitFullscreenElement||!f||Math.max(screen.width,screen.height)<900||!barVisible())return;
   try{var r=f.call(d);if(r&&r.catch)r.catch(function(){})}catch(e){}}
 document.addEventListener('click',goFull,true);
+function fullBtn(){var on=document.fullscreenElement||document.webkitFullscreenElement;$('bFull').style.display=(!on&&Math.max(screen.width,screen.height)>=900&&barVisible())?'':'none'}
+$('bFull').onclick=function(){var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;if(!f)return toast('Plein écran non disponible');try{var r=f.call(d);if(r&&r.catch)r.catch(function(e){toast(e.message)})}catch(e){toast(e.message)}};
+['fullscreenchange','webkitfullscreenchange','resize'].forEach(function(ev){(ev==='resize'?window:document).addEventListener(ev,fullBtn)});fullBtn();
 var wake=null;function keepAwake(){if(!navigator.wakeLock||document.visibilityState!=='visible'||wake)return;
   navigator.wakeLock.request('screen').then(function(w){wake=w;w.addEventListener('release',function(){wake=null})}).catch(function(){})}
 document.addEventListener('visibilitychange',keepAwake);document.addEventListener('click',keepAwake,true);keepAwake();
